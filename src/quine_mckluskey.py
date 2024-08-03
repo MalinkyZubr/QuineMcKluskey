@@ -146,16 +146,3 @@ def minimize_dataset(dataset_loaded: list[dict[str, str]]) -> list[str]:
     fully_processed = [quine_mckluskey_minimize(group, header) for header, group in separated_output_tables.items()]
 
     return list(fully_processed)
-
-# def listify_string_expression(string_expression: str):
-#     no_space: str = string_expression.replace(" ", "")
-#     listified: list[str] = no_space.split("+")
-
-#     return listified
-
-# def identify_all_shared_tokens(all_expression_strings: list[str]):
-#     flattened_strings: list[str]
-
-#     for expression_string in all_expression_strings:
-#         flattened_strings += listify_string_expression(expression_string)
-
