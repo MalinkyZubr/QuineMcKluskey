@@ -89,20 +89,3 @@ class RootMinterm:
     def check_alone(self) -> bool:
         return self.is_alone
     
-    
-class Token:
-    pass
-
-
-class Token:
-    def __init__(self, symbol: str, index: int):
-        self.symbol: str = symbol
-        self.count: int = 1
-        self.indicies: list[int] = [index]
-        
-    def add_ref_location(self, index: str):
-        self.count += 1
-        self.indicies.append(index)
-        
-    def can_join(self, token: Token):
-        return self.indicies == token.indicies

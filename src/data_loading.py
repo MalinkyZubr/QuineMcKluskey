@@ -6,15 +6,14 @@ ILLEGAL_HEADER_CHARACTERS = {"!", " ", "~", "&", "|", "(", ")", "+", "*"}
 ALLOWED_BOOLEAN_CHARACTERS = {"x", "0", "1"}
 
 
-def check_csv_headers_illegal_format(headers: list[str], filename: str) -> None:
-    base_error = f"Column {index}, {header} of CSV file {filename}"
-    
+def check_csv_headers_illegal_format(headers: list[str], filename: str) -> None:    
     for index, header in enumerate(headers):
-        if len(header != 1):
+        base_error = f"Column {index}, {header} of CSV file {filename}"
+        if len(header) != 1:
             if "O" not in header:
                 raise NameError(f"{base_error} contains input longer than 1 character. For the sake of clarity in final output, ensure input column lengths do not exceed 1 character")
             else:
-                extracted_header = header.split("O")
+                extracted_header = header[1:]
                 try: int(extracted_header)
                 except: raise NameError(f"{base_error} is an output, but contains secondary identifiers that are not integers. Outputs should only contain 'O' and numbers.\nExamples: O1, O2, O3")
         elif header in ILLEGAL_HEADER_CHARACTERS:

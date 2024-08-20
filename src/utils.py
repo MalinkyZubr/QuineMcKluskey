@@ -1,5 +1,8 @@
 import time
 from typing import Callable
+import sys, os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from src.classes import Token
 
@@ -11,6 +14,24 @@ def time_execution(to_time: Callable) -> tuple[int, str]:
     
     return end_time - start_time, return_value
 
+def extract_nested_expression(stringified_expression: str) -> str:
+    print(stringified_expression[0])
+    open_count: int = 1
+    closed_count: int = 0
+    
+    index = 1
+    
+    while open_count > closed_count and index < len(stringified_expression):
+        if stringified_expression[index] == "(":
+            open_count += 1
+        elif stringified_expression[index] == ")":
+            closed_count += 1
+        index += 1
+        
+    print(stringified_expression[1:index - 1])
+    return stringified_expression[1:index - 1]
+
+
 def tokenize_expression(stringified_expression: str) -> list[str | list]:
     not_flag = False
     index: int = 0
@@ -18,19 +39,20 @@ def tokenize_expression(stringified_expression: str) -> list[str | list]:
     
     while index < len(stringified_expression):
         token: str | list[str] = stringified_expression[index]
-        if token == "(":
-            closing_parentheses_index = stringified_expression[index + 1:].find(")")
-            nested_tokens = stringified_expression[index + 1: closing_parentheses_index]
-            token = tokenize_expression(nested_tokens)
-        elif token == "!":
+        if token != "!":
+            if token == "(":
+                nested_expression: str = extract_nested_expression(stringified_expression[index:])
+                token: list[str | list] = tokenize_expression(nested_expression)
+                index += len(nested_expression)
+                
+            if token not in (" ", ")"):
+                if not_flag:
+                    token = ["!", token]
+                    not_flag = False
+                tokenized_expression.append(token)
+        else:
             not_flag = True
-            index += 1
-            continue
         index += 1
-        
-        if not_flag:
-            token = ["!", token]
-        tokenized_expression.append(token)
         
     return tokenized_expression
         
@@ -46,31 +68,27 @@ def identify_extractable(token_table: dict[str, Token]) -> list[Token]:
     
     return maximum_references
 
-def extract_expressions(token_set: list[str | list], extractable: list[Token]) -> list[str | list]:
-    # make sure to handle + and " " properly when extracting distributed values
-    # also make sure to check ref indicies on each max reference token
-    pass
+def extract_token_groups(token_set: list[str | list]) -> list[list[str | list]]:
+    token_groups: list[list[str | list]] = []
+    current_token_group: list[str] = []
+    
+    for token in token_set:
+        if token == "+":
+            token_groups.append(current_token_group)
+            current_token_group = []
+        else:
+            if isinstance(token, list):
+                token = extract_token_groups(token)
+            current_token_group.append(token)
+    
+    if current_token_group:
+        token_groups.append(current_token_group)
+    
+    return token_groups
 
-def distributive(stringified_expression: str) -> tuple[list[str | None], list]:
-    tokenized: list[str | list] = tokenize_expression(stringified_expression)
-    token_table: dict[str, Token] = dict()
-    index: int = 0
-    
-    while index < len(tokenized):
-        token: list | str = tokenized[index]
-        if type(token) == list:
-            extracted, nested_tokens = distributive(token)
-            
-            tokenized[index] = extracted
-            tokenized.insert(index + 1, nested_tokens)
-            token = extracted
-        elif token and token not in {"!", " ", "+"}:
-            if token not in token_table:
-                token_table[token] = Token(token, index)
-            else:
-                token_table[token].add_ref_location(index)
-    
-    extractable: list[Token] = identify_extractable(token_table)
+def extract_distributed(grouped_token_set: list[list[str]]):
+    for group in grouped_token_set:
+        pass
             
             
         

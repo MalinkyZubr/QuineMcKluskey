@@ -1,4 +1,8 @@
-from src.classes import Minterm, RootMinterm
+import sys, os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from classes import Minterm, RootMinterm
     
 
 def extract_single_out_cols(row: dict[str, str], output_key: str) -> dict[str, str]:
